@@ -8,21 +8,18 @@ trait QueryShorter
 {
 
     // filter data by field name
-    public function scopeSearchByField($query, $filed_name)
+    public function scopeSearchByField($query, $filed_name, $condition = '=')
     {
-        $query->when(request()->filled($filed_name), function ($qr) use ($filed_name) {
-            $qr->where($filed_name, request()->$filed_name);
+        $query->when(request()->filled($filed_name), function ($qr) use ($filed_name, $condition) {
+            $qr->where($filed_name, $condition, request()->$filed_name);
         });
     }
 
 
 
     // search from date
-    public function scopeSearchDateFrom($query, $filed_name, $from = null)
+    public function scopeSearchDateFrom($query, $filed_name, $from = 'from_date')
     {
-        if ($from == null) {
-            $from = 'from';
-        }
 
         $query->when(request()->filled($from), function ($qr) use ($filed_name, $from) {
             $qr->where($filed_name, '>=', request()->$from);
@@ -32,11 +29,8 @@ trait QueryShorter
 
 
     // search to date
-    public function scopeSearchDateTo($query, $filed_name, $to = null)
+    public function scopeSearchDateTo($query, $filed_name, $to = 'to_date')
     {
-        if ($to == null) {
-            $to = 'to';
-        }
 
         $query->when(request()->filled($to), function ($qr) use ($filed_name, $to) {
             $qr->where($filed_name, '<=', request()->$to);
