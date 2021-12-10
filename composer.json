@@ -1,0 +1,29 @@
+{
+    "name": "skycoder/query-shorter",
+    "description": "Laravel query shorter & generator package",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Skycoder",
+            "email": "akashcseuu026@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Skycoder\\QueryShorter\\": "src/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.x-dev"
+        },
+        "laravel": {
+            "providers": [
+                "Skycoder\\QueryShorter\\QueryShorterServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev",
+    "require": {}
+}
