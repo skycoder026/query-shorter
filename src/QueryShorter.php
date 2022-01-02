@@ -38,6 +38,18 @@ trait QueryShorter
     }
 
 
+    // search date between two date
+    public function scopeDateFilter($query, $filed_name = 'date')
+    {
+        $query->when(request()->filled('from') | request()->filled('from_date'), function($qr) use($filed_name) {
+           $qr->where($filed_name, '>=', (request('from') ?? request('from_date')));
+        })
+        ->when(request()->filled('to') | request()->filled('to_date'), function($qr) use($filed_name) {
+           $qr->where($filed_name, '<=', (request('to') ?? request('to_date')));
+        });
+    }
+
+
 
 
     // search data from relationship
