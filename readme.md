@@ -58,6 +58,12 @@ Before Using Query Shorter
                 ->when($request->filled('to_retirement_date'), function($q) use($request) {
                     $q->where('retirement_date', '<=', $request->to_retirement_date);
                 })
+                ->when(request()->filled('from'), function($qr) use($request) {
+                   $qr->where('date', '>=', $request->from);
+                })
+                ->when(request()->filled('to'), function($qr) use($request) {
+                   $qr->where('date', '<=', $request->to);
+                })
                 ->when($request->filled('division'), function($q) use($request) {
                     $q->whereHas('contact_info', function($qr) use($request) {
                         $qr->where('division', $request->division);
@@ -78,6 +84,7 @@ After Using Query Shorter
                         ->searchDateTo('joining_date') // `joining_date` is database field and `to_date` from request
                         ->searchDateFrom('retirement_date', 'from_retirement_date') // `retirement_date` is database field and `from_retirement_date` from request
                         ->searchDateTo('retirement_date', 'to_retirement_date') // `retirement_date` is database field and `to_retirement_date` from request
+                        ->dateFilter()
                         ->searchFromRelation('contact_info', 'division')
                         ->latest()
                         ->get();
