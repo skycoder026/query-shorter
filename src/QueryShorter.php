@@ -7,38 +7,112 @@ namespace Skycoder\QueryShorter;
 trait QueryShorter
 {
 
-    // filter data by field name
-    public function scopeSearchByField($query, $filed_name, $condition = '=')
+    
+
+
+
+
+
+
+    /*
+     |--------------------------------------------------------------------------
+     | LIKE SEARCH
+     |--------------------------------------------------------------------------
+    */
+    public function scopeLikeSearch($query, $filed_name)
     {
-        $query->when(request()->filled($filed_name), function ($qr) use ($filed_name, $condition) {
-            $qr->where($filed_name, $condition, request()->$filed_name);
+        $query->when(request()->filled($filed_name), function($qr) use($filed_name) {
+           $qr->where($filed_name, 'LIKE', '%' . request()->$filed_name . '%');
         });
     }
 
 
 
-    // search from date
-    public function scopeSearchDateFrom($query, $filed_name, $from = 'from_date')
-    {
 
-        $query->when(request()->filled($from), function ($qr) use ($filed_name, $from) {
-            $qr->where($filed_name, '>=', request()->$from);
+
+
+
+
+
+
+    /*
+     |--------------------------------------------------------------------------
+     | LIKE SEARCH MULTIPLE FIELD
+     |--------------------------------------------------------------------------
+    */
+    public function scopeLikeSearchArr($query, $filed_names)
+    {
+        foreach ($filed_names as $key => $filed_name) {
+            $query->when(request()->filled($filed_name), function($qr) use($filed_name) {
+                $qr->where($filed_name, 'LIKE', '%' . request()->$filed_name . '%');
+            });
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+    /*
+     |--------------------------------------------------------------------------
+     | SEARCH DATA BY FIELD NAME
+     |--------------------------------------------------------------------------
+    */
+    public function scopeSearchByField($query, $filed_name)
+    {
+        $query->when(request()->filled($filed_name), function($qr) use($filed_name) {
+           $qr->where($filed_name, request()->$filed_name);
         });
     }
 
 
 
-    // search to date
-    public function scopeSearchDateTo($query, $filed_name, $to = 'to_date')
-    {
 
-        $query->when(request()->filled($to), function ($qr) use ($filed_name, $to) {
-            $qr->where($filed_name, '<=', request()->$to);
-        });
+
+
+
+
+
+
+
+    /*
+     |--------------------------------------------------------------------------
+     | SEARCH MULTIPLE DATA BY FIELD NAME
+     |--------------------------------------------------------------------------
+    */
+    public function scopeSearchByFields($query, $filed_names)
+    {
+        foreach ($filed_names as $key => $filed_name) {
+
+            $query->when(request()->filled($filed_name), function($qr) use($filed_name) {
+                $qr->where($filed_name, request()->$filed_name);
+             });
+        }
+        
     }
 
 
-    // search date between two date
+
+
+
+
+
+
+
+
+
+
+
+    /*
+     |--------------------------------------------------------------------------
+     | DATE FILTER [FROM DATE - TO DATE]  BY DEFAULT IT USING DATE COLUMN OR YOU CAN PASS YOUR COLUMN NAME (DATE FILED)
+     |--------------------------------------------------------------------------
+    */
     public function scopeDateFilter($query, $filed_name = 'date')
     {
         $query->when(request()->filled('from') | request()->filled('from_date'), function($qr) use($filed_name) {
@@ -52,12 +126,74 @@ trait QueryShorter
 
 
 
-    // search data from relationship
-    public function scopeSearchFromRelation($query, $relation, $filed_name)
+
+
+
+
+
+    /*
+     |--------------------------------------------------------------------------
+     | SEARCH BY FROM DATE, BY DEFAULT IT USING FROM DATE INPUT FIELD OR YOU CAN PASS YOUR INPUT FIELD NAME (FROM DATE)
+     |--------------------------------------------------------------------------
+    */
+    public function scopeSearchDateFrom($query, $filed_name, $from = null)
     {
-        $query->when(request()->filled($filed_name), function ($qr) use ($relation, $filed_name) {
-            $qr->whereHas($relation, function ($q) use ($filed_name) {
-                $q->where($filed_name, request()->$filed_name);
+        if($from == null) {
+            $from = 'from_date';
+        }
+
+        $query->when(request()->filled($from), function($qr) use($filed_name, $from) {
+           $qr->where($filed_name, '>=', request($from));
+        });
+    }
+
+
+
+
+
+
+
+
+
+
+
+    /*
+     |--------------------------------------------------------------------------
+     | SEARCH BY TO DATE, BY DEFAULT IT USING TO DATE INPUT FIELD OR YOU CAN PASS YOUR INPUT FIELD NAME (TO DATE)
+     |--------------------------------------------------------------------------
+    */
+    public function scopeSearchDateTo($query, $filed_name, $to = null)
+    {
+        if($to == null) {
+            $to = 'to';
+        }
+
+        $query->when(request()->filled($to), function($qr) use($filed_name, $to) {
+           $qr->where($filed_name, '<=', request($to));
+        });
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+    /*
+     |--------------------------------------------------------------------------
+     | LIKE SEARCH IN RELATIONAL TABLE
+     |--------------------------------------------------------------------------
+    */
+    public function scopeLikeSearchRelation($query, $relation, $filed_name)
+    {
+        $query->when(request()->filled($filed_name), function($qr) use($relation, $filed_name) {
+           $qr->whereHas($relation, function ($q) use ($filed_name) {
+                $q->where($filed_name, 'LIKE', '%' . request($filed_name) . '%');
             });
         });
     }
@@ -66,7 +202,72 @@ trait QueryShorter
 
 
 
-    // sort data by its key
+
+
+
+
+
+
+
+    /*
+     |--------------------------------------------------------------------------
+     | SEARCH BY FILED FROM RELATIONAL TABLE
+     |--------------------------------------------------------------------------
+    */
+    public function scopeSearchFromRelation($query, $relation, $filed_name)
+    {
+        $query->when(request()->filled($filed_name), function($qr) use($relation, $filed_name) {
+           $qr->whereHas($relation, function ($q) use ($filed_name) {
+                $q->where($filed_name, request($filed_name));
+            });
+        });
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /*
+     |--------------------------------------------------------------------------
+     | SEARCH MULTIPLE FIELD FROM RELATIONAL TABLE
+     |--------------------------------------------------------------------------
+    */
+    public function scopeSearchItemsFromRelation($query, $relation, $filed_names)
+    {
+        foreach ($filed_names as $key => $filed_name) {
+            $query->when(request()->filled($filed_name), function($qr) use($relation, $filed_name) {
+                $qr->whereHas($relation, function ($q) use ($filed_name) {
+                    $q->where($filed_name, request($filed_name));
+                });
+            });
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /*
+     |--------------------------------------------------------------------------
+     | SORT BY FIELD
+     |--------------------------------------------------------------------------
+    */
     public function scopeSortby($query)
     {
         $query->when(request()->filled('sort_by_key'), function ($query) {
