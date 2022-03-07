@@ -283,4 +283,26 @@ trait QueryShorter
             return $query->orderBy($filed_name, $order_by);
         });
     }
+
+
+
+
+
+
+
+
+
+
+
+    /*
+     |--------------------------------------------------------------------------
+     | SELECT NAME [SELECT ONLY NAME FROM RELATIONAL TABLE AND APPEND AS AN ATTRIBUTE]
+     |--------------------------------------------------------------------------
+    */
+    public function scopeSelectName($query, $relation_name)
+    {
+        $table = $relation_name . ' as ' . $relation_name .'_name';
+
+        $query->withCount([$table => function($q) { $q->select(DB::raw('name')); }]);
+    }
 }
