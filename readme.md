@@ -69,6 +69,9 @@ Before Using Query Shorter
                         $qr->where('division', $request->division);
                     });
                 })
+                ->withCount(['employee_type as employee_type_name' => function($q) { 
+                    $q->select(DB::raw('name')); 
+                }])
                 ->latest()
                 ->get();
 ```
@@ -86,6 +89,7 @@ After Using Query Shorter
                         ->searchDateTo('retirement_date', 'to_retirement_date') // `retirement_date` is database field and `to_retirement_date` from request
                         ->dateFilter()
                         ->searchFromRelation('contact_info', 'division')
+                        ->selectName('employee_type')
                         ->latest()
                         ->get();
 ```
