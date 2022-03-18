@@ -307,10 +307,16 @@ trait QueryShorter
      | SELECT NAME [SELECT ONLY NAME FROM RELATIONAL TABLE AND APPEND AS AN ATTRIBUTE]
      |--------------------------------------------------------------------------
     */
-    public function scopeSelectName($query, $relation_name, $name = 'name')
+    public function scopeSelectName($query, $relations, $name = 'name')
     {
-        $table = $relation_name . ' as ' . $relation_name .'_' . $name;
+        
+        $data = is_array($relations) ? $relations : array($relations);
+        
+        foreach($data as $relation_name) {
+            
+            $table = $relation_name . ' as ' . $relation_name .'_' . $name;
 
-        $query->withCount([$table => function($q) use($name) { $q->select(DB::raw($name)); }]);
+            $query->withCount([$table => function($q) use($name) { $q->select(DB::raw($name)); }]);
+        }
     }
 }
