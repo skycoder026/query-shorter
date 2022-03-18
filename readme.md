@@ -90,6 +90,7 @@ After Using Query Shorter
                         ->dateFilter()
                         ->searchFromRelation('contact_info', 'division')
                         ->selectName('employee_type')
+                        ->selectName(['department', 'designation', 'grade'])
                         ->latest()
                         ->get();
 ```
