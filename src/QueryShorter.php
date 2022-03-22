@@ -1,6 +1,7 @@
 <?php
 
 namespace Skycoder\QueryShorter;
+use Illuminate\Support\Facades\DB;
 
 
 
