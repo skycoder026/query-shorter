@@ -198,11 +198,15 @@ trait QueryShorter
      | LIKE SEARCH IN RELATIONAL TABLE
      |--------------------------------------------------------------------------
     */
-    public function scopeLikeSearchRelation($query, $relation, $filed_name)
+    public function scopeLikeSearchRelation($query, $relation, $filed_name, $request_filed_name = null)
     {
-        $query->when(request()->filled($filed_name), function($qr) use($relation, $filed_name) {
-           $qr->whereHas($relation, function ($q) use ($filed_name) {
-                $q->where($filed_name, 'LIKE', '%' . request($filed_name) . '%');
+        if ($request_filed_name == null) {
+            $request_filed_name = $filed_name;
+        }
+
+        $query->when(request()->filled($request_filed_name), function($qr) use($relation, $filed_name, $request_filed_name) {
+           $qr->whereHas($relation, function ($q) use ($filed_name, $request_filed_name) {
+                $q->where($filed_name, 'LIKE', '%' . request($request_filed_name) . '%');
             });
         });
     }
