@@ -8,6 +8,185 @@ use Illuminate\Support\Facades\DB;
 trait QueryShorter
 {
 
+    public function scopeLIKE($query, $field)
+    {
+        return $query->where(str_replace("filter_", "", $field), 'LIKE', request($field));
+    }
+
+
+    public function scopeNOTLIKE($query, $field)
+    {
+        return $query->where(str_replace("filter_", "", $field), 'NOT LIKE', request($field));
+    }
+                                                                
+
+    public function scopeLIKEALL($query, $field)
+    {
+        return $query->where(str_replace("filter_", "", $field), 'LIKE', '%' . request($field) . '%');
+    }
+                                                                
+
+    public function scopeNOTLIKEALL($query, $field)
+    {
+        return $query->where(str_replace("filter_", "", $field), 'NOT LIKE', '%' . request($field) . '%');
+    }
+
+
+    public function scopeLikeSearchAny($query, $fields = [], $request_field)
+    {
+        if(request()->filled($request_field) && is_array($fields) && count($fields) > 0) {
+            $query->where(function($q) use($fields, $request_field) {
+                foreach ($fields as $key => $field) {
+                    $q->orWhere(str_replace("filter_", "", $field), 'LIKE', '%' . request($request_field) . '%');
+                }
+            });                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
+        } 
+    }
+
+
+    public function scopeEQUAL($query, $field)
+    {
+        return $query->where(str_replace("filter_", "", $field), request($field));
+    }
+
+
+    public function scopeNOTEQUAL($query, $field)
+    {
+        return $query->where(str_replace("filter_", "", $field), '!=', request($field));
+    }
+
+
+    public function scopeIN($query, $field)
+    {
+        $string = trim(request($field));
+        $string = str_replace(', ', ',', $string);
+
+
+        $items = explode(",", $string);
+
+        return $query->whereIn(str_replace("filter_", "", $field), $items);
+    }
+
+
+    public function scopeNOTIN($query, $field)
+    {
+        $string = trim(request($field));
+        $string = str_replace(', ', ',', $string);
+
+
+        $items = explode(",", $string);
+
+        return $query->whereNotIn(str_replace("filter_", "", $field), $items);
+    }
+
+
+    public function scopeISNULL($query, $field)
+    {
+        return $query->where(function ($qr) use($field) {
+            $qr->whereNull(str_replace("filter_", "", $field))->orWhere(str_replace("filter_", "", $field), '');
+        });
+    }
+
+
+    public function scopeISNOTNULL($query, $field)
+    {
+        return $query->whereNotNull(str_replace("filter_", "", $field));
+    }
+
+
+    public function scopeLESSTHANEQUAL($query, $field)
+    {
+        return $query->where(function ($qr) use($field) {
+            $qr->whereNotNull(str_replace("filter_", "", $field))->where(str_replace("filter_", "", $field), "<>", '');
+        });
+    }
+
+
+    public function scopeGREATERTHANEQUAL($query, $field)
+    {
+        return $query->where(str_replace("filter_", "", $field), '>=', request($field));
+    }
+
+
+    public function scopeBETWEEN($query, $field)
+    {
+        $string = trim(request($field));
+        $string = str_replace(', ', ',', $string);
+
+
+        $items = explode(",", $string);
+
+        if (count($items)) {
+
+            $value1 = $items[0];
+            $value2 = $items[0];
+            if (count($items) > 1) {
+                $value2 = $items[1];
+            }
+
+            return $query->where(str_replace("filter_", "", $field), '>=', $value1)->where(str_replace("filter_", "", $field), '<=', $value2);
+        }
+    }
+
+    public function scopeNOTBETWEEN($query, $field)
+    {
+        $string = trim(request($field));
+        $string = str_replace(', ', ',', $string);
+
+
+        $items = explode(",", $string);
+
+        if (count($items)) {
+
+            $value1 = $items[0];
+            $value2 = $items[0];
+            if (count($items) > 1) {
+                $value2 = $items[1];
+            }
+
+            return $query->where(function ($qr) use ($field, $value1, $value2) {
+                $qr->where(str_replace("filter_", "", $field), '<', $value1)->orWhere(str_replace("filter_", "", $field), '>', $value2);
+            });
+        }
+    }
+
+    public function scopeFROMDATE($query, $field)
+    {
+        return $query->where('date', '>=', request('from_date'));
+    }
+
+
+    
+    /*
+     |--------------------------------------------------------------------------
+     | SELECT NAME [SELECT ONLY NAME FROM RELATIONAL TABLE AND APPEND AS AN ATTRIBUTE]
+     |--------------------------------------------------------------------------
+    */
+    public function scopeTODATE($query, $field)
+    {
+        return $query->where('date', '<=', request('to_date'));
+    }
+
+
+    
+    /*
+     |--------------------------------------------------------------------------
+     | SELECT NAME [SELECT ONLY NAME FROM RELATIONAL TABLE AND APPEND AS AN ATTRIBUTE]
+     |--------------------------------------------------------------------------
+    */
+    public function scopeSelectName($query, $relations, $name = 'name')
+    {
+        
+        $data = is_array($relations) ? $relations : array($relations);
+        
+        foreach($data as $relation_name) {
+            
+            $table = $relation_name . ' as ' . $relation_name .'_' . $name;
+
+            $query->withCount([$table => function($q) use($name) { $q->select(DB::raw($name)); }]);
+        }
+    }
+
     
 
     /*
@@ -295,33 +474,5 @@ trait QueryShorter
 
             return $query->orderBy($filed_name, $order_by);
         });
-    }
-
-
-
-
-
-
-
-
-
-
-
-    /*
-     |--------------------------------------------------------------------------
-     | SELECT NAME [SELECT ONLY NAME FROM RELATIONAL TABLE AND APPEND AS AN ATTRIBUTE]
-     |--------------------------------------------------------------------------
-    */
-    public function scopeSelectName($query, $relations, $name = 'name')
-    {
-        
-        $data = is_array($relations) ? $relations : array($relations);
-        
-        foreach($data as $relation_name) {
-            
-            $table = $relation_name . ' as ' . $relation_name .'_' . $name;
-
-            $query->withCount([$table => function($q) use($name) { $q->select(DB::raw($name)); }]);
-        }
     }
 }
