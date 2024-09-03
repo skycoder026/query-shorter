@@ -4,9 +4,9 @@
     "homepage": "https://github.com/skycoder026/query-shorter",
     "license": "MIT",
     "keywords": [
-        "qyery-shorter",
-        "qyery-maker",
-        "qyery-generator",
+        "query-shorter",
+        "query-maker",
+        "query-generator",
         "asmakash",
         "akashcsem",
         "skycoder"
@@ -24,7 +24,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "1.0.1 -dev"
+            "dev-master": "1.0.2-dev"
         },
         "laravel": {
             "providers": [
@@ -36,7 +36,7 @@
     "readme": "./readme.md",
     "time": "2021-12-10",
     "require": {
-        "php": "^7.2.5"
+        "php": "^8.0"
     },
-    "version": "1.0.1"
+    "version": "1.0.2"
 }
