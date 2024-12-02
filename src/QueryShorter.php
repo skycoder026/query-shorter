@@ -32,7 +32,7 @@ trait QueryShorter
     }
 
 
-    public function scopeLikeSearchAny($query, $fields = [], $request_field)
+    public function scopeLikeSearchAny($query, $request_field, $fields = [])
     {
         if(request()->filled($request_field) && is_array($fields) && count($fields) > 0) {
             $query->where(function($q) use($fields, $request_field) {
